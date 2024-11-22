@@ -12,52 +12,42 @@ import {
 const userNameSchema = new Schema<UserName>({
   firstName: {
     type: String,
-    required: true,
   },
   middleName: {
     type: String,
   },
   lastName: {
     type: String,
-    required: true,
   },
 });
 
 const gurdianSchema = new Schema<Guardian>({
   fatherName: {
     type: String,
-    required: true,
   },
   motherName: {
     type: String,
-    required: true,
   },
   motherOccupation: {
     type: String,
-    required: true,
   },
   motherContactNo: {
     type: String,
-    required: true,
   },
 });
 
 const localGuardianSchema = new Schema<LocalGuardian>({
   name: {
     type: String,
-    required: true,
   },
   occupation: {
     type: String,
-    required: true,
   },
   contactNo: {
     type: String,
-    required: true,
   },
   address: {
     type: String,
-    required: true,
   },
 });
 
@@ -71,24 +61,19 @@ const studentSchema = new Schema<Student>({
   },
   email: {
     type: String,
-    required: true,
   },
   contactNo: {
     type: String,
-    required: true,
   },
   emergencyContactNo: {
     type: String,
-    required: true,
   },
   bloodGroup: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
   presentAddress: {
     type: String,
-    required: true,
   },
   permanentAddress: {
     type: String,
-    required: true,
   },
   guardian: gurdianSchema,
 
@@ -103,19 +88,3 @@ const studentSchema = new Schema<Student>({
 // 3. Create a Model.
 // model 2ta prameter nie name / Schema
 export const StudentModel = model<Student>('Student', studentSchema);
-
-// run().catch((err) => console.log(err));
-
-// async function run() {
-//   // 4. Connect to MongoDB
-//   await connect('mongodb://127.0.0.1:27017/test');
-
-//   const user = new User({
-//     name: 'Bill',
-//     email: 'bill@initech.com',
-//     avatar: 'https://i.imgur.com/dM7Thhn.png',
-//   });
-//   await user.save();
-
-//   console.log(user.email); // 'bill@initech.com'
-// }

@@ -6,3 +6,5 @@ const router = express.Router();
 // will call  controller funcation
 
 router.post('/create-student', StudentController.createStudent);
+
+export const StudentsRoutes = router;

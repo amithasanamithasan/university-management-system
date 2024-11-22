@@ -1,21 +1,67 @@
-import { Schema, model, connect } from 'mongoose';
-import { Student } from './students/interface.student';
+import { Schema } from 'mongoose';
+import {
+  Guardian,
+  LocalGuardian,
+  Student,
+  UserName,
+} from './students/interface.student';
+
+const userNameSchema = new Schema<UserName>({
+  firstName: {
+    type: String,
+    required: true,
+  },
+  middleName: {
+    type: String,
+  },
+  lastName: {
+    type: String,
+    required: true,
+  },
+});
+
+const gurdianSchema = new Schema<Guardian>({
+  fatherName: {
+    type: String,
+    required: true,
+  },
+  motherName: {
+    type: String,
+    required: true,
+  },
+  motherOccupation: {
+    type: String,
+    required: true,
+  },
+  motherContactNo: {
+    type: String,
+    required: true,
+  },
+});
+
+const localGuardianSchema = new Schema<LocalGuardian>({
+  name: {
+    type: String,
+    required: true,
+  },
+  occupation: {
+    type: String,
+    required: true,
+  },
+  contactNo: {
+    type: String,
+    required: true,
+  },
+  address: {
+    type: String,
+    required: true,
+  },
+});
+
 // 2. Create a Schema corresponding to the document interface.
 const studentSchema = new Schema<Student>({
   id: { type: String },
-  name: {
-    firstName: {
-      type: String,
-      required: true,
-    },
-    middleName: {
-      type: String,
-    },
-    lastName: {
-      type: String,
-      required: true,
-    },
-  },
+  name: userNameSchema,
   gender: ['male', 'female'],
   dateOfBirth: {
     type: String,
@@ -41,43 +87,9 @@ const studentSchema = new Schema<Student>({
     type: String,
     required: true,
   },
-  guardian: {
-    fatherName: {
-      type: String,
-      required: true,
-    },
-    motherName: {
-      type: String,
-      required: true,
-    },
-    motherOccupation: {
-      type: String,
-      required: true,
-    },
-    motherContactNo: {
-      type: String,
-      required: true,
-    },
-  },
+  guardian: gurdianSchema,
 
-  localGuardian: {
-    name: {
-      type: String,
-      required: true,
-    },
-    occupation: {
-      type: String,
-      required: true,
-    },
-    contactNo: {
-      type: String,
-      required: true,
-    },
-    address: {
-      type: String,
-      required: true,
-    },
-  },
+  localGuardian: localGuardianSchema,
 
   profileImage: {
     type: String,

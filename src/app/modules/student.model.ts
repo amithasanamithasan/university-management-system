@@ -1,10 +1,13 @@
-import { Schema } from 'mongoose';
+import { Schema, model } from 'mongoose';
+
 import {
   Guardian,
   LocalGuardian,
   Student,
   UserName,
 } from './students/interface.student';
+
+// 2. Create a Schema corresponding to the document interface.
 
 const userNameSchema = new Schema<UserName>({
   firstName: {
@@ -96,3 +99,23 @@ const studentSchema = new Schema<Student>({
   },
   isActive: ['active', 'blocked'],
 });
+
+// 3. Create a Model.
+// model 2ta prameter nie name / Schema
+export const StudentModel = model<Student>('Student', studentSchema);
+
+// run().catch((err) => console.log(err));
+
+// async function run() {
+//   // 4. Connect to MongoDB
+//   await connect('mongodb://127.0.0.1:27017/test');
+
+//   const user = new User({
+//     name: 'Bill',
+//     email: 'bill@initech.com',
+//     avatar: 'https://i.imgur.com/dM7Thhn.png',
+//   });
+//   await user.save();
+
+//   console.log(user.email); // 'bill@initech.com'
+// }

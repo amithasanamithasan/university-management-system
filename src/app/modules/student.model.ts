@@ -12,92 +12,127 @@ import {
 const userNameSchema = new Schema<UserName>({
   firstName: {
     type: String,
-    required: true,
+    required: [true, 'First Name is required'],
   },
   middleName: {
     type: String,
   },
   lastName: {
     type: String,
-    required: true,
+    required: [true, 'Last Name is required'],
   },
 });
 
 const gurdianSchema = new Schema<Guardian>({
   fatherName: {
     type: String,
-    required: true,
+    required: [true, 'Father Name is required'],
   },
   motherName: {
     type: String,
-    required: true,
+    required: [true, 'Mother Name is required'],
   },
   motherOccupation: {
     type: String,
-    required: true,
+    required: [true, 'Mother occupation is required'],
   },
   motherContactNo: {
     type: String,
-    required: true,
+    required: [true, 'Mother Contact No is required'],
   },
 });
 
 const localGuardianSchema = new Schema<LocalGuardian>({
   name: {
     type: String,
-    required: true,
+    required: [true, 'Name is required'],
   },
   occupation: {
     type: String,
-    required: true,
+    required: [true, 'Occupation is required'],
   },
   contactNo: {
     type: String,
-    required: true,
+    required: [true, 'Contact number is required'],
   },
   address: {
     type: String,
-    required: true,
+    required: [true, 'Address is required'],
   },
 });
 
 // 2. Create a Schema corresponding to the document interface.
 const studentSchema = new Schema<Student>({
-  id: { type: String },
-  name: userNameSchema,
-  gender: ['male', 'female'],
+  // id duplicate hobe na mane 2 bar add hobe na tr jonno unique :true
+  // E11000 duplicate key error collection
+  id: {
+    type: String,
+    required: [true, 'ID is required'],
+    unique: true,
+  },
+  name: {
+    type: userNameSchema,
+    required: [true, 'Name is required'],
+  },
+  gender: {
+    type: String,
+    enum: {
+      values: ['male', 'female', 'other'],
+      message: '{VALUE} is not a valid gender',
+    },
+  },
   dateOfBirth: {
     type: String,
   },
   email: {
     type: String,
-    required: true,
+    required: [true, 'Email is required'],
+    unique: true,
   },
   contactNo: {
     type: String,
-    required: true,
+    required: [true, 'ContactNo is required'],
   },
   emergencyContactNo: {
     type: String,
-    required: true,
+    required: [true, 'Emergency contact number is required'],
   },
-  bloodGroup: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+  bloodGroup: {
+    type: String,
+    enum: {
+      values: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+      message: '{VALUE} is not a valid blood group',
+    },
+  },
   presentAddress: {
     type: String,
-    required: true,
+    required: [true, 'Present address is required'],
   },
   permanentAddress: {
     type: String,
-    required: true,
+    required: [true, 'Permanent address is required'],
   },
-  guardian: gurdianSchema,
+  guardian: {
+    type: gurdianSchema,
+    required: [true, 'Guardian information is required'],
+  },
 
-  localGuardian: localGuardianSchema,
+  localGuardian: {
+    type: localGuardianSchema,
+    required: [true, 'Local guardian information is required'],
+  },
 
   profileImage: {
     type: String,
   },
-  isActive: ['active', 'blocked'],
+  isActive: {
+    type: String,
+    enum: {
+      values: ['active', 'blocked'],
+      message: '{VALUE} is not a valid status',
+    },
+    default: 'active',
+  },
 });
 
 // 3. Create a Model.

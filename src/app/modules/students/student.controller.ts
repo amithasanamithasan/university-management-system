@@ -2,7 +2,11 @@ import { NextFunction, Request, Response } from 'express';
 import { StudentServices } from './student.service';
 
 // get controller
-const getAllStudents = async (req: Request, res: Response) => {
+const getAllStudents = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const result = await StudentServices.getAllStudentsFromDB();
 
@@ -11,14 +15,18 @@ const getAllStudents = async (req: Request, res: Response) => {
       message: 'Student are retrived successfully ',
       data: result,
     });
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    next(err);
   }
 };
 
 // single id student findOne
 
-const getSingleStudent = async (req: Request, res: Response) => {
+const getSingleStudent = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { studentId } = req.params;
     const result = await StudentServices.getSingleStudentsFromDB(studentId);
@@ -28,8 +36,8 @@ const getSingleStudent = async (req: Request, res: Response) => {
       message: 'Student is retrived successfully ',
       data: result,
     });
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    next(err);
   }
 };
 

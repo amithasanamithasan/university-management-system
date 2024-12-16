@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import AppError from '../../errors/AppError';
 import { StudentModel } from '../student.model';
 import { Usermodel } from '../user/user.model';
+import { TStudent } from './interface.student';
 
 const getAllStudentsFromDB = async () => {
   const result = await StudentModel.find()
@@ -17,7 +18,7 @@ const getAllStudentsFromDB = async () => {
 };
 
 const getSingleStudentsFromDB = async (id: string) => {
-  const result = await StudentModel.findById(id)
+  const result = await StudentModel.findOne({ id })
     .populate('admissionSemester')
     .populate({
       path: 'academicDepartment',
@@ -69,9 +70,59 @@ const deleteStudentFromDB = async (id: string) => {
     throw new Error('Failed to delete student');
   }
 };
+// Update student
+const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
+  // non premative field update data destcuring data into database
+  const { name, guardian, localGuardian, ...remainingStudentData } = payload;
 
+  const modifiedUpdatedData: Record<string, unknown> = {
+    ...remainingStudentData,
+  };
+
+  /*
+    guardain: {
+      fatherOccupation:"Teacher"
+    }
+
+    guardian.fatherOccupation = Teacher
+
+    name.firstName = 'Mezba'
+    name.lastName = 'Abedin'
+  */
+
+  if (name && Object.keys(name).length) {
+    for (const [key, value] of Object.entries(name)) {
+      modifiedUpdatedData[`name.${key}`] = value;
+    }
+  }
+
+  if (guardian && Object.keys(guardian).length) {
+    for (const [key, value] of Object.entries(guardian)) {
+      modifiedUpdatedData[`guardian.${key}`] = value;
+    }
+  }
+
+  if (localGuardian && Object.keys(localGuardian).length) {
+    for (const [key, value] of Object.entries(localGuardian)) {
+      modifiedUpdatedData[`localGuardian.${key}`] = value;
+    }
+  }
+
+  console.log(modifiedUpdatedData);
+
+  const result = await StudentModel.findOneAndUpdate(
+    { id },
+    modifiedUpdatedData,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+  return result;
+};
 export const StudentServices = {
   getAllStudentsFromDB,
   getSingleStudentsFromDB,
   deleteStudentFromDB,
+  updateStudentIntoDB,
 };

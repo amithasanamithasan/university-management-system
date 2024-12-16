@@ -162,6 +162,11 @@ const studentSchema = new Schema<TStudent>(
     },
   },
 );
+//creating a custom static method
+studentSchema.statics.isUserExists = async function (id: string) {
+  const existingUser = await StudentModel.findOne({ id });
+  return existingUser;
+};
 
 // 3. Create a Model.
 // model 2ta prameter nie name / Schema

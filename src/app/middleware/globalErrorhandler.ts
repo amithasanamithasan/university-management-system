@@ -3,6 +3,7 @@ import config from '../config';
 import { TErrorSources } from '../interface/error';
 import { ZodError } from 'zod';
 import handleZodError from '../errors/handleZodError';
+import handleValidationError from '../errors/handleValidationError';
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   // Set default values
@@ -18,22 +19,22 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   // Handle specific errors like Zod validation errors
   if (err instanceof ZodError) {
     const simplifiedError = handleZodError(err);
-    statusCode = simplifiedError.statusCode || 500;
-    message = simplifiedError.message || 'Validation error';
-    errorSources = simplifiedError.errorSources || [
-      {
-        path: '',
-        message: 'Validation failed',
-      },
-    ];
+    statusCode = simplifiedError?.statusCode;
+    message = simplifiedError?.message;
+    errorSources = simplifiedError.errorSources;
+  } else if (err?.name === 'ValidationError') {
+    const simplifiedError = handleValidationError(err);
+    statusCode = simplifiedError?.statusCode;
+    message = simplifiedError?.message;
+    errorSources = simplifiedError?.errorSources;
   }
 
   // Return the error response
-  res.status(statusCode).json({
+  return res.status(statusCode).json({
     success: false,
     message,
     errorSources,
-    err: err,
+    // err: err,
     stack: config.NODE_ENV === 'development' ? err.stack : null,
   });
 

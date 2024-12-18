@@ -5,8 +5,22 @@ import { StudentModel } from '../student.model';
 import { Usermodel } from '../user/user.model';
 import { TStudent } from './interface.student';
 
-const getAllStudentsFromDB = async () => {
-  const result = await StudentModel.find()
+const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
+  // HOW OUR FORMAT SHOULD BE FOR PARTIAL MATCH SearchQuery  :
+  //  { email: { $regex : query.searchTerm , $options: i}}
+  //  { presentAddress: { $regex : query.searchTerm , $options: i}}
+  //  { 'name.firstName': { $regex : query.searchTerm , $options: i}}
+  // jodi client thake na die r jodi daie
+  let searchTerm = '';
+  if (query?.searchTerm) {
+    searchTerm = query?.searchTerm as string;
+  }
+
+  const result = await StudentModel.find({
+    $or: ['email', 'name.firstName', ' presentAddress'].map((field) => ({
+      [field]: { $regex: searchTerm, $options: 'i' },
+    })),
+  })
     .populate('admissionSemester')
     .populate({
       path: 'academicDepartment',

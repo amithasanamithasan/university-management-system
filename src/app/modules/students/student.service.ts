@@ -6,7 +6,6 @@ import { Usermodel } from '../user/user.model';
 import { TStudent } from './interface.student';
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
-  console.log('base query', query);
   const queryObj = { ...query }; // copying req.query object so that we can mutate the copy object
   // HOW OUR FORMAT SHOULD BE FOR PARTIAL MATCH SearchQuery  :
   //  { email: { $regex : query.searchTerm , $options: i}}
@@ -32,7 +31,9 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
 
   const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
   excludeFields.forEach((el) => delete queryObj[el]); // DELETING THE FIELDS SO THAT IT CAN'T MATCH OR FILTER EXACTLY
-  // console.log({ query, queryObj });
+
+  // queryObj jwar age aita deleted kore fellam
+  console.log({ query }, { queryObj });
 
   const filterQuery = searchQuery
     .find(queryObj)
@@ -53,12 +54,39 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
   }
 
   const sortQuery = filterQuery.sort(sort);
-  let limit = 1;
+  // PAGINATION FUNCTIONALITY:
+
+  let page = 1; // SET DEFAULT VALUE FOR PAGE
+  let limit = 1; // SET DEFAULT VALUE FOR LIMIT
+  let skip = 0; // SET DEFAULT VALUE FOR SKIP
+  // IF page IS GIVEN SET IT
+
   if (query.limit) {
-    limit = query.limit;
+    limit = Number(query.limit);
   }
-  const limitQuery = await sortQuery.limit(limit);
-  return limitQuery;
+
+  if (query.page) {
+    page = Number(query.page);
+    skip = (page - 1) * limit;
+  }
+  const paginateQuery = sortQuery.skip(skip);
+
+  const limitQuery = paginateQuery.limit(limit);
+
+  // FIELDS LIMITING FUNCTIONALITY:
+  // fields: 'name,email'; // WE ARE ACCEPTING FROM REQUEST
+  //fields: 'name email'; // HOW IT SHOULD BE
+
+  let fields = '-__v';
+
+  if (query.fields) {
+    fields = (query.fields as string).split(',').join(' ');
+    console.log(fields);
+  }
+
+  const fieldQuery = await limitQuery.select(fields);
+
+  return fieldQuery;
 };
 
 const getSingleStudentsFromDB = async (id: string) => {

@@ -6,21 +6,36 @@ import { Usermodel } from '../user/user.model';
 import { TStudent } from './interface.student';
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
+  console.log('base query', query);
+  const queryObj = { ...query }; // copying req.query object so that we can mutate the copy object
   // HOW OUR FORMAT SHOULD BE FOR PARTIAL MATCH SearchQuery  :
   //  { email: { $regex : query.searchTerm , $options: i}}
   //  { presentAddress: { $regex : query.searchTerm , $options: i}}
   //  { 'name.firstName': { $regex : query.searchTerm , $options: i}}
   // jodi client thake na die r jodi daie
+  const studentSearchableFields = [
+    'email',
+    'name.firstName',
+    ' presentAddress',
+  ];
   let searchTerm = '';
   if (query?.searchTerm) {
     searchTerm = query?.searchTerm as string;
   }
-
-  const result = await StudentModel.find({
-    $or: ['email', 'name.firstName', ' presentAddress'].map((field) => ({
+  const searchQuery = StudentModel.find({
+    $or: studentSearchableFields.map((field) => ({
       [field]: { $regex: searchTerm, $options: 'i' },
     })),
-  })
+  });
+
+  // FILTERING fUNCTIONALITY:
+
+  const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
+  excludeFields.forEach((el) => delete queryObj[el]); // DELETING THE FIELDS SO THAT IT CAN'T MATCH OR FILTER EXACTLY
+  // console.log({ query, queryObj });
+
+  const filterQuery = searchQuery
+    .find(queryObj)
     .populate('admissionSemester')
     .populate({
       path: 'academicDepartment',
@@ -28,7 +43,22 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
         path: 'academicFaculty',
       },
     });
-  return result;
+  // SORTING FUNCTIONALITY:
+
+  let sort = '-createdAt'; // SET DEFAULT VALUE
+  // IF sort  IS GIVEN SET IT
+
+  if (query.sort) {
+    sort = query.sort as string;
+  }
+
+  const sortQuery = filterQuery.sort(sort);
+  let limit = 1;
+  if (query.limit) {
+    limit = query.limit;
+  }
+  const limitQuery = await sortQuery.limit(limit);
+  return limitQuery;
 };
 
 const getSingleStudentsFromDB = async (id: string) => {

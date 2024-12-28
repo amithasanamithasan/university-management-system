@@ -3,31 +3,43 @@ import httpStatus from 'http-status-codes';
 import mongoose from 'mongoose';
 import config from '../../config';
 import AppError from '../../errors/AppError';
-import { AcademicSemester } from '../academicSemester/academicSemester.model';
-import { StudentModel } from '../student.model';
-import { TStudent } from '../students/interface.student';
-import { TUser } from './user.interface';
-
-import { Usermodel } from './user.model';
-import { generateStudentId } from './user.utils';
-import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
-import { TFaculty } from '../Faculty/interface.faculty';
-import { Faculty } from '../Faculty/model.faculty';
+import { TAdmin } from '../Admin/admin.interface';
 import { Admin } from '../Admin/admin.model';
 
-const createStudentIntoDB = async (password: string, payload: TStudent) => {
-  // Create a user object
+import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 
+import { AcademicSemester } from './../academicSemester/academicSemester.model';
+import { TUser } from './user.interface';
+
+import {
+  generateAdminId,
+  generateFacultyId,
+  generateStudentId,
+} from './user.utils';
+import { TFaculty } from '../Faculty/interface.faculty';
+import { Faculty } from '../Faculty/model.faculty';
+import { TStudent } from '../students/interface.student';
+import { StudentModel } from '../student.model';
+import { Usermodel } from './user.model';
+
+const createStudentIntoDB = async (password: string, payload: TStudent) => {
+  // create a user object
   const userData: Partial<TUser> = {};
-  // if password is not given ,use deafult password
+
+  //if password is not given , use deafult password
   userData.password = password || (config.default_password as string);
 
-  // set student role
+  //set student role
   userData.role = 'student';
+
   // find academic semester info
   const admissionSemester = await AcademicSemester.findById(
     payload.admissionSemester,
   );
+
+  if (!admissionSemester) {
+    throw new AppError(400, 'Admission semester not found');
+  }
 
   const session = await mongoose.startSession();
 
@@ -121,7 +133,8 @@ const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
     throw new Error(err);
   }
 };
-const createAdminIntoDB = async (password: string, payload: TFaculty) => {
+
+const createAdminIntoDB = async (password: string, payload: TAdmin) => {
   // create a user object
   const userData: Partial<TUser> = {};
 
@@ -172,16 +185,3 @@ export const UserServices = {
   createFacultyIntoDB,
   createAdminIntoDB,
 };
-function generateAdminId():
-  | string
-  | PromiseLike<string | undefined>
-  | undefined {
-  throw new Error('Function not implemented.');
-}
-
-function generateFacultyId():
-  | string
-  | PromiseLike<string | undefined>
-  | undefined {
-  throw new Error('Function not implemented.');
-}

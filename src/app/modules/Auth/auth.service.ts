@@ -10,40 +10,40 @@ import { createToken } from './auth.utils';
 import { Usermodel } from '../user/user.model';
 
 const loginUser = async (payload: TLoginUser) => {
-  console.log(payload);
+  // console.log(payload);
   // checking if the user is exist
-  //   const user = await Usermodel.isUserExistsByCustomId(payload.id);
+  const user = await Usermodel.isUserExistsByCustomId(payload.id);
 
-  //   if (!user) {
-  //     throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
-  //   }
-  //   // checking if the user is already deleted
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
+  }
+  // checking if the user is already deleted
 
-  //   const isDeleted = user?.isDeleted;
+  const isDeleted = user?.isDeleted;
 
-  //   if (isDeleted) {
-  //     throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted !');
-  //   }
+  if (isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted !');
+  }
 
-  //   // checking if the user is blocked
+  // checking if the user is blocked
 
-  //   const userStatus = user?.status;
+  const userStatus = user?.status;
 
-  //   if (userStatus === 'blocked') {
-  //     throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked ! !');
-  //   }
+  if (userStatus === 'blocked') {
+    throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked ! !');
+  }
 
-  //   //checking if the password is correct
+  //checking if the password is correct
 
-  //   if (!(await Usermodel.isPasswordMatched(payload?.password, user?.password)))
-  //     throw new AppError(httpStatus.FORBIDDEN, 'Password do not matched');
+  // if (!(await Usermodel.isPasswordMatched(payload?.password, user?.password)))
+  //   throw new AppError(httpStatus.FORBIDDEN, 'Password do not matched');
 
-  //   //create token and sent to the  client
+  // //create token and sent to the  client
 
-  //   const jwtPayload = {
-  //     userId: user.id,
-  //     role: user.role,
-  //   };
+  // const jwtPayload = {
+  //   userId: user.id,
+  //   role: user.role,
+  // };
 
   //   const accessToken = createToken(
   //     jwtPayload,

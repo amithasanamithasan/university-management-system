@@ -76,6 +76,7 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
 
   const studentQuery = new QueryBuilder(
     StudentModel.find()
+      .populate('user')
       .populate('admissionSemester')
       .populate({
         path: 'academicDepartment',
@@ -188,7 +189,7 @@ const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
     }
   }
 
-  console.log(modifiedUpdatedData);
+  // console.log(modifiedUpdatedData);
 
   const result = await StudentModel.findByIdAndUpdate(id, modifiedUpdatedData, {
     new: true,

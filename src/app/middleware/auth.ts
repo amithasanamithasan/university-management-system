@@ -1,18 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status-codes';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { NextFunction, Request, Response } from 'express';
-
-import catchAsync from '../utils/catchAsync';
-import AppError from '../errors/AppError';
 import config from '../config';
+import AppError from '../errors/AppError';
 import { TUserRole } from '../modules/user/user.interface';
 
-const authmiddleware = (...requiredRoles: TUserRole[]) => {
+import catchAsync from '../utils/catchAsync';
+import { Usermodel } from '../modules/user/user.model';
+
+const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // console.log({ token: req.headers.authorization });
     const token = req.headers.authorization;
-    // console.log(token);
 
     // checking if the token is missing
     if (!token) {
@@ -24,9 +22,39 @@ const authmiddleware = (...requiredRoles: TUserRole[]) => {
       token,
       config.jwt_access_secret as string,
     ) as JwtPayload;
-    // console.log(decoded);
 
-    const role = (decoded as JwtPayload).role;
+    const { role, userId, iat } = decoded;
+
+    // checking if the user is exist
+    const user = await Usermodel.isUserExistsByCustomId(userId);
+
+    if (!user) {
+      throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
+    }
+    // checking if the user is already deleted
+
+    const isDeleted = user?.isDeleted;
+
+    if (isDeleted) {
+      throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted !');
+    }
+
+    // checking if the user is blocked
+    const userStatus = user?.status;
+
+    if (userStatus === 'blocked') {
+      throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked ! !');
+    }
+
+    if (
+      user.passwordChangedAt &&
+      Usermodel.isJWTIssuedBeforePasswordChanged(
+        user.passwordChangedAt,
+        iat as number,
+      )
+    ) {
+      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized !');
+    }
 
     if (requiredRoles && !requiredRoles.includes(role)) {
       throw new AppError(
@@ -34,10 +62,10 @@ const authmiddleware = (...requiredRoles: TUserRole[]) => {
         'You are not authorized  hi!',
       );
     }
+
     req.user = decoded as JwtPayload;
-    const { role, userId, iat } = decoded;
     next();
   });
 };
 
-export default authmiddleware;
+export default auth;

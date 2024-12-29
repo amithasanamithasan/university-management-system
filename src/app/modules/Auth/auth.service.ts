@@ -45,12 +45,14 @@ const loginUser = async (payload: TLoginUser) => {
     userId: user.id,
     role: user.role,
   };
-
-  const accessToken = createToken(
-    jwtPayload,
-    config.jwt_access_secret as string,
-    config.jwt_access_expires_in as string,
-  );
+  const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
+    expiresIn: '10d',
+  });
+  // const accessToken = createToken(
+  //   jwtPayload,
+  //   config.jwt_access_secret as string,
+  //   config.jwt_access_expires_in as string,
+  // );
 
   //   const refreshToken = createToken(
   //     jwtPayload,

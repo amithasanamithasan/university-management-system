@@ -6,8 +6,9 @@ import { NextFunction, Request, Response } from 'express';
 import catchAsync from '../utils/catchAsync';
 import AppError from '../errors/AppError';
 import config from '../config';
+import { TUserRole } from '../modules/user/user.interface';
 
-const authmiddleware = () => {
+const authmiddleware = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // console.log({ token: req.headers.authorization });
     const token = req.headers.authorization;
@@ -24,6 +25,15 @@ const authmiddleware = () => {
       config.jwt_access_secret as string,
     ) as JwtPayload;
     // console.log(decoded);
+
+    const role = (decoded as JwtPayload).role;
+
+    if (requiredRoles && !requiredRoles.includes(role)) {
+      throw new AppError(
+        httpStatus.UNAUTHORIZED,
+        'You are not authorized  hi!',
+      );
+    }
     req.user = decoded as JwtPayload;
     const { role, userId, iat } = decoded;
     next();

@@ -8,6 +8,7 @@ import AppError from '../../errors/AppError';
 import { TLoginUser } from './auth.interface';
 import { createToken } from './auth.utils';
 import { Usermodel } from '../user/user.model';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 const loginUser = async (payload: TLoginUser) => {
   // console.log(payload);
@@ -35,21 +36,21 @@ const loginUser = async (payload: TLoginUser) => {
 
   //checking if the password is correct
 
-  // if (!(await Usermodel.isPasswordMatched(payload?.password, user?.password)))
-  //   throw new AppError(httpStatus.FORBIDDEN, 'Password do not matched');
+  if (!(await Usermodel.isPasswordMatched(payload?.password, user?.password)))
+    throw new AppError(httpStatus.FORBIDDEN, 'Password do not matched');
 
   // //create token and sent to the  client
 
-  // const jwtPayload = {
-  //   userId: user.id,
-  //   role: user.role,
-  // };
+  const jwtPayload = {
+    userId: user.id,
+    role: user.role,
+  };
 
-  //   const accessToken = createToken(
-  //     jwtPayload,
-  //     config.jwt_access_secret as string,
-  //     config.jwt_access_expires_in as string,
-  //   );
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expires_in as string,
+  );
 
   //   const refreshToken = createToken(
   //     jwtPayload,
@@ -57,11 +58,11 @@ const loginUser = async (payload: TLoginUser) => {
   //     config.jwt_refresh_expires_in as string,
   //   );
 
-  //   return {
-  //     accessToken,
-  //     refreshToken,
-  //     needsPasswordChange: user?.needsPasswordChange,
-  //   };
+  return {
+    accessToken,
+    // refreshToken,
+    needsPasswordChange: user?.needsPasswordChange,
+  };
 };
 export const AuthServices = {
   loginUser,

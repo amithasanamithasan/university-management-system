@@ -22,7 +22,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
       token,
       config.jwt_access_secret as string,
     ) as JwtPayload;
-
+    //   iat means jwt timestamp kon time assinge hoiacilo
     const { role, userId, iat } = decoded;
 
     // checking if the user is exist

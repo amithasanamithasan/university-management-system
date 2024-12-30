@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
 
@@ -10,7 +11,9 @@ const app: Application = express();
 
 // json nia use korbo tr jonno parser use korbo
 app.use(express.json());
-app.use(cors());
+app.use(cookieParser());
+// frontend localhost dia raklam jate kono issue na hoi
+app.use(cors({ origin: ['http://localhost:5173'] }));
 
 // application routes
 

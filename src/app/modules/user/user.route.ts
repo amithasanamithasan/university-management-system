@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post(
   '/create-student',
-  authmiddleware(USER_ROLE.admin),
+  // authmiddleware(USER_ROLE.admin),
   validateRequest(createStudentValidationSchema),
   UserControllers.createStudent,
 );

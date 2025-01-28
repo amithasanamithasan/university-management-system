@@ -17,7 +17,7 @@ export const sendEmail = async (to: string, html: string) => {
     from: 'amit35-1773@diu.edu.bd', // sender address
     to, //reciver address
     subject: 'Please you want Reset your password change  within ten mins!', // Subject line
-    text: 'Forget Password! Do have write Password', // plain text body
+    text: 'Forget Password! Do you have write Password', // plain text body
     html,
   });
 };

@@ -213,9 +213,11 @@ const forgetPassword = async (userId: string) => {
 
   console.log(resetUILink);
 };
+const resetPassword = () => {};
 export const AuthServices = {
   loginUser,
   changePassword,
   refreshToken,
   forgetPassword,
+  resetPassword,
 };

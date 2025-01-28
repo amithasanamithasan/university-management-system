@@ -8,6 +8,7 @@ import { TLoginUser } from './auth.interface';
 import { createToken } from './auth.utils';
 import { Usermodel } from '../user/user.model';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { sendEmail } from '../../utils/sendEmail';
 
 const loginUser = async (payload: TLoginUser) => {
   // console.log(payload);
@@ -200,24 +201,18 @@ const forgetPassword = async (userId: string) => {
     role: user.role,
   };
 
-  const accessToken = createToken(
+  const resetToken = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
     '10m',
   );
-  const resetUILink = `http://localhost:5000/api/v1?id=${user.id}&token=${accessToken} `;
 
-  // sendEmail(user.email, resetUILink);
+  const resetUILink = `${config.reset_pass_ui_link}?id=${user.id}&token=${resetToken} `;
+
+  sendEmail(user.email, resetUILink);
 
   console.log(resetUILink);
 };
-
-//   const resetUILink = `${config.reset_pass_ui_link}?id=${user.id}&token=${resetToken} `;
-
-//   sendEmail(user.email, resetUILink);
-
-//   console.log(resetUILink);
-// };
 export const AuthServices = {
   loginUser,
   changePassword,

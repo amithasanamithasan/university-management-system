@@ -6,6 +6,7 @@ import { createFacultyValidationSchema } from '../Faculty/validation.faculty';
 import { createAdminValidationSchema } from '../Admin/admin.validation';
 import authmiddleware from '../../middleware/auth';
 import { USER_ROLE } from './user.constant';
+import auth from '../../middleware/auth';
 
 const router = express.Router();
 
@@ -31,6 +32,13 @@ router.post(
   // authmiddleware(USER_ROLE.admin),
   validateRequest(createAdminValidationSchema),
   UserControllers.createAdmin,
+);
+router.get(
+  '/me',
+  // superadmin todo
+  // authmiddleware(USER_ROLE.admin),
+  auth('student', 'faculty', 'admin'),
+  UserControllers.getMe,
 );
 
 export const UserRoutes = router;

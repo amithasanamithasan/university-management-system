@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Response } from 'express';
 import { UserControllers } from './user.controller';
 import validateRequest from '../../middleware/validateRequest';
 import { createStudentValidationSchema } from '../students/student.validation';
@@ -8,6 +8,7 @@ import authmiddleware from '../../middleware/auth';
 import { USER_ROLE } from './user.constant';
 import auth from '../../middleware/auth';
 import { UserValidation } from './user.validation';
+import { upload } from '../../utils/sendImageToCloudinary';
 
 const router = express.Router();
 
@@ -16,6 +17,11 @@ const router = express.Router();
 router.post(
   '/create-student',
   auth(USER_ROLE.admin),
+  upload.single('file'),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
   // authmiddleware(USER_ROLE.admin),
   validateRequest(createStudentValidationSchema),
   UserControllers.createStudent,

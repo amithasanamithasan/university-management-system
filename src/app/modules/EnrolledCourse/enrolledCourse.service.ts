@@ -90,7 +90,7 @@ const createEnrolledCourseIntoDB = async (
       },
     },
   ]);
-
+  // console.log(enrolledCourses);
   //  total enrolled credits + new enrolled course credit > maxCredit
   const totalCredits =
     enrolledCourses.length > 0 ? enrolledCourses[0].totalEnrolledCredits : 0;

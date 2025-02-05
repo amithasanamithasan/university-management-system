@@ -205,6 +205,21 @@ const updateEnrolledCourseMarksIntoDB = async (
     ...courseMarks,
   };
 
+  // final marks update and grade points grade iscompleted result update
+
+  if (courseMarks?.finalTerm) {
+    const { classTest1, classTest2, midTerm, finalTerm } =
+      isCourseBelongToFaculty.courseMarks;
+
+    const totalMarks =
+      Math.ceil(classTest1 * 0.1) +
+      Math.ceil(midTerm * 0.3) +
+      Math.ceil(classTest2 * 0.1) +
+      Math.ceil(finalTerm * 0.5);
+
+    console.log(totalMarks);
+  }
+
   if (courseMarks && Object.keys(courseMarks).length) {
     for (const [key, value] of Object.entries(courseMarks)) {
       modifiedData[`courseMarks.${key}`] = value;

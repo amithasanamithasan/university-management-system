@@ -11,6 +11,7 @@ import { TEnrolledCourse } from './enrolledCourse.interface';
 import EnrolledCourse from './enrolledCourse.model';
 import { StudentModel } from '../student.model';
 import { Faculty } from '../Faculty/model.faculty';
+import { calculateGradeAndPoints } from './enrolledCourse.utils';
 
 const createEnrolledCourseIntoDB = async (
   userId: string,
@@ -217,7 +218,16 @@ const updateEnrolledCourseMarksIntoDB = async (
       Math.ceil(classTest2 * 0.1) +
       Math.ceil(finalTerm * 0.5);
 
-    console.log(totalMarks);
+    // console.log(totalMarks);
+
+    const result = calculateGradeAndPoints(totalMarks);
+
+    // console.log(result);
+
+    // database update grade and gradepoint update
+    modifiedData.grade = result.grade;
+    modifiedData.gradePoints = result.gradePoints;
+    modifiedData.isCompleted = true;
   }
 
   if (courseMarks && Object.keys(courseMarks).length) {

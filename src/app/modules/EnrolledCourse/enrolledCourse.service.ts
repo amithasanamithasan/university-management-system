@@ -10,6 +10,7 @@ import { SemesterRegistration } from '../semesterRegistration/semesterRegistrati
 import { TEnrolledCourse } from './enrolledCourse.interface';
 import EnrolledCourse from './enrolledCourse.model';
 import { StudentModel } from '../student.model';
+import { Faculty } from '../Faculty/model.faculty';
 
 const createEnrolledCourseIntoDB = async (
   userId: string,
@@ -152,30 +153,73 @@ const updateEnrolledCourseMarksIntoDB = async (
   facultyId: string,
   payload: Partial<TEnrolledCourse>,
 ) => {
+  // console.log(facultyId);
   const { semesterRegistration, offeredCourse, student, courseMarks } = payload;
 
-  // validation exists
+  // Validation: Check if semester registration exists
   const isSemesterRegistrationExists =
     await SemesterRegistration.findById(semesterRegistration);
 
   if (!isSemesterRegistrationExists) {
     throw new AppError(
       httpStatus.NOT_FOUND,
-      'Semester registration not found !',
+      'Semester registration not found!',
     );
   }
-  // offered Courses existes
+
+  // Validation: Check if offered course exists
   const isOfferedCourseExists = await OfferedCourse.findById(offeredCourse);
 
   if (!isOfferedCourseExists) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Offered course not found !');
-  }
-  const isStudentExists = await StudentModel.findById(student);
-  if (!isStudentExists) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Student not found !');
+    throw new AppError(httpStatus.NOT_FOUND, 'Offered course not found!');
   }
 
-  //
+  // Validation: Check if student exists
+  const isStudentExists = await StudentModel.findById(student);
+  if (!isStudentExists) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Student not found!');
+  }
+  const faculty = await Faculty.findOne({ id: facultyId }, { _id: 1 });
+
+  // console.log(faculty);
+
+  if (!faculty) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Faculty not found !');
+  }
+  // Check if the course belongs to the faculty
+  const isCourseBelongToFaculty = await EnrolledCourse.findOne({
+    semesterRegistration,
+    offeredCourse,
+    student,
+    faculty: faculty._id,
+  });
+
+  // console.log(isCourseBelongToFaculty);
+
+  if (!isCourseBelongToFaculty) {
+    throw new AppError(httpStatus.FORBIDDEN, 'You are forbidden! !');
+  }
+
+  // Dynamic Update normal object belongs
+  const modifiedData: Record<string, unknown> = {
+    ...courseMarks,
+  };
+
+  if (courseMarks && Object.keys(courseMarks).length) {
+    for (const [key, value] of Object.entries(courseMarks)) {
+      modifiedData[`courseMarks.${key}`] = value;
+    }
+  }
+
+  const result = await EnrolledCourse.findByIdAndUpdate(
+    isCourseBelongToFaculty._id,
+    modifiedData,
+    {
+      new: true,
+    },
+  );
+
+  return result;
 };
 
 export const EnrolledCourseServices = {

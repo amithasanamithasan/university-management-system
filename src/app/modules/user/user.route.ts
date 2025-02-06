@@ -16,13 +16,12 @@ const router = express.Router();
 
 router.post(
   '/create-student',
-  auth(USER_ROLE.admin),
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   upload.single('file'),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = JSON.parse(req.body.data);
     next();
   },
-  // authmiddleware(USER_ROLE.admin),
   validateRequest(createStudentValidationSchema),
   UserControllers.createStudent,
 );

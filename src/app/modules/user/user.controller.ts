@@ -4,21 +4,14 @@ import sendResponse from '../../utils/sendResponse';
 import catchAsync from '../../utils/catchAsync';
 
 const createStudent = catchAsync(async (req, res) => {
-  console.log(req.file, 'file');
-  // console.log(JSON.parse(req.body.data));
-  const { password, student: StudentData } = req.body;
-  //console.log(StudentData);
+  const { password, student: studentData } = req.body;
+
   const result = await UserServices.createStudentIntoDB(
     req.file,
     password,
-    StudentData,
+    studentData,
   );
 
-  // res.status(200).json({
-  //   success: true,
-  //   message: 'Student is created successfully ',
-  //   data: result,
-  // });
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -26,6 +19,7 @@ const createStudent = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const createFaculty = catchAsync(async (req, res) => {
   const { password, faculty: facultyData } = req.body;
 

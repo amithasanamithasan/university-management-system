@@ -31,12 +31,12 @@ const createStudentIntoDB = async (
   // create a user object
   const userData: Partial<TUser> = {};
 
-  //if password is not given , use deafult password
+  //if password is not given , use default password
   userData.password = password || (config.default_password as string);
 
   //set student role
   userData.role = 'student';
-  // set  student email
+  // set student email
   userData.email = payload.email;
 
   // find academic semester info
@@ -48,6 +48,16 @@ const createStudentIntoDB = async (
     throw new AppError(400, 'Admission semester not found');
   }
 
+  // find department
+  const academicDepartment = await AcademicDepartment.findById(
+    payload.academicDepartment,
+  );
+
+  if (!academicDepartment) {
+    throw new AppError(400, 'Aademic department not found');
+  }
+  payload.academicFaculty = academicDepartment.academicFaculty;
+
   const session = await mongoose.startSession();
 
   try {
@@ -55,11 +65,14 @@ const createStudentIntoDB = async (
     //set  generated id
     userData.id = await generateStudentId(admissionSemester);
 
-    const imageName = `${userData.id}${payload?.name?.firstName}`;
-    const path = file?.path;
-    // send image  to cloudinary
+    if (file) {
+      const imageName = `${userData.id}${payload?.name?.firstName}`;
+      const path = file?.path;
 
-    const { secure_url } = await sendImageToCloudinary(imageName, path);
+      //send image to cloudinary
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      payload.profileImage = secure_url as string;
+    }
 
     // create a user (transaction-1)
     const newUser = await Usermodel.create([userData], { session }); // array
@@ -71,10 +84,8 @@ const createStudentIntoDB = async (
     // set id , _id as user
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id; //reference _id
-    payload.profileImage = secure_url;
 
     // create a student (transaction-2)
-
     const newStudent = await StudentModel.create([payload], { session });
 
     if (!newStudent.length) {

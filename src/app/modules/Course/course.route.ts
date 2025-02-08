@@ -4,33 +4,55 @@ import { CourseControllers } from './course.controller';
 import { CourseValidations } from './course.validation';
 import validateRequest from '../../middleware/validateRequest';
 import auth from '../../middleware/auth';
+import { USER_ROLE } from '../user/user.constant';
 
 const router = express.Router();
 
 router.post(
   '/create-course',
-  auth('admin'),
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   validateRequest(CourseValidations.createCourseValidationSchema),
   CourseControllers.createCourse,
 );
 
 router.get(
   '/:id',
-  auth('student', 'faculty', 'admin'),
+  auth(
+    USER_ROLE.superAdmin,
+    USER_ROLE.admin,
+    USER_ROLE.faculty,
+    USER_ROLE.student,
+  ),
   CourseControllers.getSingleCourse,
 );
 
-router.delete('/:id', auth('admin'), CourseControllers.deleteCourse);
+router.delete(
+  '/:id',
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  CourseControllers.deleteCourse,
+);
 
-router.get('/', CourseControllers.getAllCourses);
+router.get(
+  '/',
+  auth(
+    USER_ROLE.superAdmin,
+    USER_ROLE.admin,
+    USER_ROLE.faculty,
+    USER_ROLE.student,
+  ),
+  CourseControllers.getAllCourses,
+);
+
 router.put(
   '/:courseId/assign-faculties',
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   validateRequest(CourseValidations.facultiesWithCourseValidationSchema),
   CourseControllers.assignFacultiesWithCourse,
 );
+
 router.patch(
   '/:id',
-  auth('admin'),
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   validateRequest(CourseValidations.updateCourseValidationSchema),
   CourseControllers.updateCourse,
 );

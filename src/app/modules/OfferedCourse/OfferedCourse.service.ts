@@ -168,7 +168,25 @@ const getMyOfferedCoursesFromDB = async (userId: string) => {
       'There is no ongoing semester registration!',
     );
   }
-  return currentOngoingRegistrationSemester;
+  const result = await OfferedCourse.aggregate([
+    {
+      $match: {
+        semesterRegistration: currentOngoingRegistrationSemester?._id,
+        academicFaculty: student.academicFaculty,
+        academicDepartment: student.academicDepartment,
+      },
+    },
+    {
+      $lookup: {
+        from: 'courses',
+        localField: 'course',
+        foreignField: '_id',
+        as: 'course',
+      },
+    },
+  ]);
+  // console.log(result);
+  return result;
 };
 const getSingleOfferedCourseFromDB = async (id: string) => {
   const offeredCourse = await OfferedCourse.findById(id);

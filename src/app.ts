@@ -13,7 +13,7 @@ const app: Application = express();
 app.use(express.json());
 app.use(cookieParser());
 // frontend localhost dia raklam jate kono issue na hoi
-app.use(cors({ origin: ['http://localhost:5173'] }));
+app.use(cors({ origin: ['http://localhost:5173'], credentials: true }));
 
 // application routes
 

@@ -220,15 +220,17 @@ const getMyOfferedCoursesFromDB = async (userId: string) => {
         as: 'completedCourses',
       },
     },
-    // {
-    //   $addFields: {
-    //     $in:['course._id',{
-    //       $map:{
-    //         input:''
-    //       }
-    //     }]
-    //   }
-    // }
+    {
+      $addFields: {
+        completedCourseIds: {
+          $map: {
+            input: '$completedCourses',
+            as: 'completed',
+            in: '$$completed.course',
+          },
+        },
+      },
+    },
   ]);
   // console.log(result);
   return result;

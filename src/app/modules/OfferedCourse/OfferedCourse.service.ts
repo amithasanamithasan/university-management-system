@@ -184,6 +184,51 @@ const getMyOfferedCoursesFromDB = async (userId: string) => {
         as: 'course',
       },
     },
+    {
+      $unwind: '$course',
+    },
+    {
+      $lookup: {
+        from: 'enrolledcourses',
+        let: {
+          currentOngoingRegistrationSemester:
+            currentOngoingRegistrationSemester._id,
+          currentStudent: student._id,
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  {
+                    $eq: [
+                      '$semesterRegistration',
+                      '$$currentOngoingRegistrationSemester',
+                    ],
+                  },
+                  {
+                    $eq: ['$student', '$$currentStudent'],
+                  },
+                  {
+                    $eq: ['$isEnrolled', true],
+                  },
+                ],
+              },
+            },
+          },
+        ],
+        as: 'completedCourses',
+      },
+    },
+    // {
+    //   $addFields: {
+    //     $in:['course._id',{
+    //       $map:{
+    //         input:''
+    //       }
+    //     }]
+    //   }
+    // }
   ]);
   // console.log(result);
   return result;
